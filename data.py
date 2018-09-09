@@ -42,7 +42,7 @@ def get_distance(lat_1, lng_1, lat_2, lng_2):
     d_lng = deg2rad(lng_2 - lng_1) 
 
     temp = (math.sin(d_lat / 2) ** 2 + math.cos(deg2rad(lat_1)) * math.cos(deg2rad(lat_2)) * math.sin(d_lng / 2) ** 2)
-    return int(637100.0 * (2 * math.atan2(math.sqrt(temp), math.sqrt(1 - temp))))
+    return int(6371000.0 * (2 * math.atan2(math.sqrt(temp), math.sqrt(1 - temp))))
 
 def getNearestNeighbors(lat, lon, limit):
 	dealers = list()
@@ -160,7 +160,7 @@ def getDealerBymakeId(makeId, lat, lon, limit):
 				for record in data_reader: 
 					if (makeName == record[2]):
 						obj = Car(record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], record[10], record[11], record[12], record[13], record[14], record[15], record[16], record[17])			
-						obj.distanceFromCurrentLocation = get_distance(float(lat), float(lon), float(record[13]), float(record[14]))
+						obj.disCurLocation = get_distance(float(lat), float(lon), float(record[13]), float(record[14]))
 	return result
 
 def getDealerBymakeModelId(makeModelId, lat, lon, limit):
@@ -214,3 +214,76 @@ def getDealerBydealerId(dealerId):
 
 	return result
 
+def getCarsWithFilters(lat, lon, limit, carMakeName, modelName, color, transmission, priceLow, priceHigh, year, rating, distance):
+
+	s1 = set()
+	s2 = set()
+	s3 = set()
+	s4 = set()
+	s5 = set()
+	s6 = set()
+	s7 = set()
+	s8 = set()
+	s = set()
+
+	result = list()
+	with open('Orignal.csv', 'r') as read:
+		reader = csv.reader(read)
+		next(reader)
+		ind = 0
+		for line in reader:
+			if(carMakeName is not None and carMakeName == line[2]):
+				s1.add(ind)
+			if(modelName is not None and modelName == line[3]):
+				s2.add(ind)	
+			if(color is not None and color == line[9]):
+				s3.add(ind)
+			if(transmission is not None and transmission == line[10]):
+				s4.add(ind)
+			if(priceLow is not None and line[5] >= priceLow and priceHigh is not None and line[5] <= priceHigh):
+				s5.add(ind)
+			if(year is not None and year <= line[4]):
+				s6.add(ind)
+			if(rating is not None and float(rating) <= float(line[16])):
+				s7.add(ind)
+			if(distance is not None and distance <= get_distance(float(lat), float(lon), float(line[13]), float(line[14]))):
+				s8.add(ind)
+			ind +=1
+
+		print('length of s7  ',len(s7))
+
+		s = s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8
+
+		if(len(s1)):
+			s = s & s1 
+		if(len(s2)):
+			s = s & s2 
+		if(len(s3)):
+			s = s & s3 
+		if(len(s4)):
+			s = s & s4 
+		if(len(s5)):
+			s = s & s5 
+		if(len(s6)):
+			s = s & s6 
+		if(len(s7)):
+			s = s & s7 
+		if(len(s8)):
+			s = s & s8
+
+		s = sorted(s)
+		read.seek(0)
+		ind = 0
+		ptr = 0 
+		print('size of  s' , len(s))
+		for record in reader:
+			if(ind == s[ptr]):
+				obj = Car(line[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], record[10], record[11], record[12], record[13], record[14], record[15], record[16], record[17])
+				#if(isinstance(record[13], float) and isinstance(record[14], float)):
+				# obj.disCurLocation = get_distance(float(lat), float(lon), float(record[13]), float(record[14]))
+				result.append(obj)
+				ptr += 1
+				if(ptr == len(s)): break
+			ind += 1
+			
+	return result			

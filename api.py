@@ -6,17 +6,31 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def checkServer():
     return jsonify(result=True)
-
+"""
 @app.route('/cars/all', methods=['GET'])
 def getAllCarsNameApi():
     carsName = (getAllCarsName())
     return jsonify(carsName)
 
+"""
+
 @app.route('/cars', methods=['GET'])
 def getQueryCarsNameApi():
-    query = request.args.get('q')
-    carsName = getCarNameQuery(query)
-    return jsonify(carsName)
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    limit = request.args.get('limit')
+    carMakeName = request.args.get('carMakeName')
+    modelName = request.args.get('modelName')
+    color = request.args.get('color')
+    transmission = request.args.get('transmission')
+    priceLow = request.args.get('priceLow')
+    priceHigh = request.args.get('priceHigh')
+    year = request.args.get('year')
+    rating = request.args.get('rating')
+    distance = request.args.get('distance')
+    carsList = getCarsWithFilters(lat, lon, limit, carMakeName, modelName, color, transmission, priceLow, priceHigh, year, rating, distance)
+    file = json.dumps([ob.__dict__ for ob in carsList])
+    return (file)
 
 @app.route('/dealers/nearme', methods=['GET'])
 def getNeighbors():

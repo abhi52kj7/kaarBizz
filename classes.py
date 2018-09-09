@@ -29,24 +29,24 @@ class MakeModels:
 
 class Car:
 
-	distanceFromCurrentLocation = 0
+	disCurLocation = 0
 
-	def __init__(self,id,vin,make,model,year,price,trim,engine,body,color,transmission,dealerId,dealerName,lat,lon,email,rating,rateCount)
+	def __init__(self,id,vin,make,model,year,price,trim,engine,body,color,transmission,dealerId,dealerName,lat,lon,mail,avgRating,peopleRated):
 		self.id = id
-		self.id = vin
-		self.id = make
-		self.id = model
-		self.id = year
-		self.id = price
-		self.id = trim
-		self.id = engine
-		self.id = body
-		self.id = color
-		self.id = transmission
-		self.id = dealerId
-		self.id = dealerName
-		self.id = lat
-		self.id = lon
-		self.id = email
-		self.id = rating
-		self.id = rateCount
+		self.vin = vin
+		self.make = make
+		self.model = model
+		self.year = year
+		self.price = price
+		self.trim = trim
+		self.engine = engine
+		self.body = body
+		self.color = color
+		self.transmission = transmission
+		self.dealerId = dealerId
+		self.dealerName = dealerName
+		self.lat = lat
+		self.lon = lon
+		self.mail = mail
+		self.avgRating = avgRating
+		self.peopleRated = peopleRated

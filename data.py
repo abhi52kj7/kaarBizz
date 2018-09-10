@@ -190,6 +190,20 @@ def getDealerBymakeModelId(makeModelId, lat, lon, limit):
 									
 	return result
 
+def isfloat(value):
+	try:
+		float(value)
+		return True
+	except ValueError:
+		return False
+
+def isint(value):
+	try:
+		int(value)
+		return True
+	except ValueError:
+		return False
+
 def getDealerBydealerId(dealerId):
 	result = list()
 
@@ -240,17 +254,17 @@ def getCarsWithFilters(lat, lon, limit, carMakeName, modelName, color, transmiss
 				s3.add(ind)
 			if(transmission is not None and transmission == line[10]):
 				s4.add(ind)
-			if(priceLow is not None and line[5] >= priceLow and priceHigh is not None and line[5] <= priceHigh):
+			if(priceLow is not None and isint(line[5]) and int(line[5]) >= int(priceLow) and priceHigh is not None and int(line[5]) <= int(priceHigh)):
 				s5.add(ind)
-			if(year is not None and year <= line[4]):
+			if(year is not None and isint(line[4]) and int(year) <= int(line[4])):
 				s6.add(ind)
-			if(rating is not None and float(rating) <= float(line[16])):
+			if(rating is not None and isfloat(line[16]) and float(rating) <= float(line[16])):
 				s7.add(ind)
-			if(distance is not None and distance <= get_distance(float(lat), float(lon), float(line[13]), float(line[14]))):
+			if(distance is not None and isfloat(line[13]) and isfloat(line[14]) and int(distance) <= get_distance(float(lat), float(lon), float(line[13]), float(line[14]))):
 				s8.add(ind)
 			ind +=1
 
-		print('length of s7  ',len(s7))
+		print('length of s7  ',len(s7), 'length of s6  ', len(s6))
 
 		s = s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8
 
@@ -273,17 +287,21 @@ def getCarsWithFilters(lat, lon, limit, carMakeName, modelName, color, transmiss
 
 		s = sorted(s)
 		read.seek(0)
+		next(reader)
 		ind = 0
 		ptr = 0 
 		print('size of  s' , len(s))
 		for record in reader:
 			if(ind == s[ptr]):
 				obj = Car(line[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], record[10], record[11], record[12], record[13], record[14], record[15], record[16], record[17])
-				#if(isinstance(record[13], float) and isinstance(record[14], float)):
-				# obj.disCurLocation = get_distance(float(lat), float(lon), float(record[13]), float(record[14]))
-				result.append(obj)
+				if(isfloat(record[13]) and isfloat(record[14])):
+					obj.disCurLocation = get_distance(float(lat), float(lon), float(record[13]), float(record[14]))
+					result.append(obj)
 				ptr += 1
 				if(ptr == len(s)): break
 			ind += 1
-			
-	return result			
+	
+	result.sort(key=lambda x: x.disCurLocation)
+	limit = int(limit)
+	limit = min(limit, len(result))
+	return result[0: limit]			
